@@ -1,16 +1,17 @@
 package com.example.approtest;
 
 public class Message {
-    private static int sync;
-    private final int sync_index = ++sync;
+
+    private User user;
     private String content;
 
-    public Message (String content){
+    public Message (String content, User user){
+        this.user = user;
         this.content = content;
     }
 
     public Message (Message msg){
-        this(msg.content);
+        this(msg.content, msg.user);
     }
 
     public String getContent() {
@@ -21,7 +22,8 @@ public class Message {
         this.content = content;
     }
 
-    public int getSync() {
-        return sync;
+    public User getUser() {
+        return user;
     }
+
 }

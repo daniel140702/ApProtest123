@@ -13,6 +13,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -36,6 +37,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
+
+import java.util.prefs.Preferences;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -97,7 +100,10 @@ String currentUserSurname;
                     greeting.setText("Hello " + currentUserFirstName + " " + currentUserSurname + ", find what protest suits you!");
                 }
             });
-        }}
+        }
+    }
+
+
 
 
     @Override

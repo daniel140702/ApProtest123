@@ -2,12 +2,14 @@ package com.example.approtest;
 
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class User {
+public class User implements Serializable {
     private String fullName;
-    private String id;
+    private String token;
+    private String image;
     private HashMap<String, Event> participated_events;
 
 
