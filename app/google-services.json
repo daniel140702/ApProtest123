@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "76310628550",
+    "project_id": "approtest-10",
+    "storage_bucket": "approtest-10.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76310628550:android:d2513a224faa5c1466afc7",
+        "android_client_info": {
+          "package_name": "com.example.approtest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "76310628550-jfmefd4vjq5rcc5cao5oegmlotqoubus.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLK5l5wvyoNQpf2zzhbP4yL8KqOCKaaHM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "76310628550-jfmefd4vjq5rcc5cao5oegmlotqoubus.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

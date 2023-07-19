@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn = "navigation_view">
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_maps"
+            android:icon="@drawable/outline_map_30"
+            android:title="Map"/>
+
+
+        <item
+            android:id="@+id/nav_chats"
+            android:icon="@drawable/outline_message_30"
+            android:title="Chats"/>
+
+
+        <item
+            android:id="@+id/nav_calendar"
+            android:icon="@drawable/outline_calendar_month_30"
+            android:title="Calendar"/>
+
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/outline_settings_30"
+            android:title="Settings"/>
+
+
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/outline_info_30"
+            android:title="About"/>
+
+    </group>
+
+    <item
+        android:title="">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/baseline_logout_30"
+                android:title="Logout"/>
+        </menu>
+    </item>
+
+</menu>

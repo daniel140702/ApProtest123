@@ -1,0 +1,15 @@
+ <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.ApProtest" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorPrimaryVariant">@color/light_blue</item>
+    </style>
+
+    <style name="toolbarTitleStyle">
+        <item name="fontFamily">@font/blackopsoneregular</item>
+    </style>
+
+     <style name="Theme.ApProtest" parent="Base.Theme.ApProtest" />
+</resources>
