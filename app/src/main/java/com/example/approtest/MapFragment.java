@@ -5,7 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,19 +26,31 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 
+import java.util.List;
+
 
 public class MapFragment extends Fragment {
     private boolean markerMoveEnabled = false;
+    Boolean isAdmin;
+
     private ViewGroup layoutContainer; // Container for the layout to be displayed
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
+
+    List<Event> events;
 
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -68,14 +82,35 @@ public class MapFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
         Button addButton = rootView.findViewById(R.id.add_event);
+
+        addButton.setVisibility(View.GONE);
+
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        currentUser.getDisplayName();
-        /*if (currentUser instanceof Admin) {
-            addButton.setVisibility(View.VISIBLE);
-        } else {
-            addButton.setVisibility(View.GONE);
-        }*/
+        FirebaseFirestore db;
+        db = FirebaseFirestore.getInstance();
+        DocumentReference userDoc = db.collection("users").document(currentUser.getUid());
+        userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null && document.exists()) {
+
+                        isAdmin = document.getBoolean("Admin");
+
+                        if (isAdmin)
+                            addButton.setVisibility(View.VISIBLE);
+
+                    } else {
+                    }
+                } else {
+                }
+            }
+        });
+
+
+
 
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +155,6 @@ public class MapFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String abc = eventName.getText().toString();
-                Log.d("myType", abc);
                 // Implement your logic here using the user input
                 dialog.dismiss();
             }
@@ -136,8 +170,5 @@ public class MapFragment extends Fragment {
         Dialog dialog = builder.create();
         dialog.show();
     }
-
-
 }
-
 

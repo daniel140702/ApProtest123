@@ -38,6 +38,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
+import java.util.List;
 import java.util.prefs.Preferences;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -51,6 +52,7 @@ FirebaseUser currentUser;
 FirebaseFirestore db;
 String currentUserFirstName;
 String currentUserSurname;
+List<Event> events;
 
 
     @Override
@@ -104,11 +106,11 @@ String currentUserSurname;
     }
 
 
-
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_maps) {
+            MapFragment mapFragment = new MapFragment();
+            mapFragment.setArguments("Events", events);
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment()).commit();
         } else if ( item.getItemId() == R.id.nav_chats){
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatsFragment()).commit();
