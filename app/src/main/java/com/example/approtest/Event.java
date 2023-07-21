@@ -13,16 +13,16 @@ import java.util.HashMap;
 public class Event implements Serializable {
     protected String eventName;
     protected ArrayList<User> participants;
-    protected Date date;
+    protected String date;
     protected ArrayList<Message> chat;
     protected LatLng place;
 
     protected String encodedImage;
 
 
-    public Event (String name, Date date, LatLng place){
-        this.eventName=new String();
-        this.date = new Date(date.getTime());
+    public Event (String name, String date, LatLng place){
+        this.eventName = String.valueOf(name);
+        this.date = String.valueOf(date);
         this.place = place;
         this.participants = new ArrayList<User>();
         this.chat = new ArrayList<Message>();
@@ -33,4 +33,7 @@ public class Event implements Serializable {
         return eventName;
     }
 
+    public LatLng getLatLang() {return place;}
+
+    public void addUser(User user) {this.participants.add(user); }
 }

@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +17,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.Button;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -39,7 +42,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MapFragment extends Fragment {
@@ -49,9 +55,15 @@ public class MapFragment extends Fragment {
     private ViewGroup layoutContainer; // Container for the layout to be displayed
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
+    ArrayList<Event> events;
+    FirebaseFirestore db;
+    LatLng place;
 
-    List<Event> events;
-
+    public MapFragment(ArrayList<Event> events)
+    {
+        this.events = events;
+        place = new LatLng(0,0);
+    }
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -59,35 +71,52 @@ public class MapFragment extends Fragment {
         public void onMapReady(GoogleMap googleMap) {
             LatLng sydney = new LatLng(31, 35);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-            MarkerOptions markerOptions = new MarkerOptions().position(sydney).title("Marker in Sydney");
-            Marker marker = googleMap.addMarker(markerOptions);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
+            MarkerOptions markerOptions = new MarkerOptions().position(sydney).title("current");
+            Marker tempMarker = googleMap.addMarker(markerOptions);
+            tempMarker.setVisible(false);
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
+                    for(int i =0;i < events.size();i++)
+                    {
+                        LatLng pos = events.get(i).getLatLang();
+                        String name = events.get(i).getEventName();
+                        MarkerOptions markerOptions = new MarkerOptions().position(pos).title(name);
+                        Marker eventMarker = googleMap.addMarker(markerOptions);
+                    }
                     if (markerMoveEnabled) {
-                        marker.setPosition(latLng);
+                        place =new LatLng(latLng.latitude,latLng.longitude);
+                        tempMarker.setVisible(true);
+                        tempMarker.setPosition(latLng);
                         showDialog();
                     }
+                    else
+                    {
+                        tempMarker.setVisible(false);
+                    }
+                }
+            });
+            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker)
+                {
+                    String mName = marker.getTitle();
+                    Toast.makeText(getActivity().getApplicationContext(),mName,Toast.LENGTH_SHORT).show();
+                    return false;
                 }
             });
         }
     };
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
-        Button addButton = rootView.findViewById(R.id.add_event);
-
-        addButton.setVisibility(View.GONE);
-
+        FloatingActionButton add_button_floating=rootView.findViewById(R.id.add_button_floating);
+        add_button_floating.setVisibility(View.GONE);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        FirebaseFirestore db;
         db = FirebaseFirestore.getInstance();
         DocumentReference userDoc = db.collection("users").document(currentUser.getUid());
         userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -100,7 +129,8 @@ public class MapFragment extends Fragment {
                         isAdmin = document.getBoolean("Admin");
 
                         if (isAdmin)
-                            addButton.setVisibility(View.VISIBLE);
+                            add_button_floating.setVisibility(View.VISIBLE);
+
 
                     } else {
                     }
@@ -113,7 +143,7 @@ public class MapFragment extends Fragment {
 
 
 
-        addButton.setOnClickListener(new View.OnClickListener() {
+        add_button_floating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 markerMoveEnabled=!markerMoveEnabled;
@@ -143,18 +173,38 @@ public class MapFragment extends Fragment {
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setOrientation(LinearLayout.VERTICAL);
 
-        final EditText eventName = new EditText(getActivity());
-        eventName.setHint("Event Name");
-        layout.addView(eventName);
+        final EditText eventN = new EditText(getActivity());
+        eventN.setHint("Event Name");
+        layout.addView(eventN);
 
-        final EditText eventDate = new EditText(getActivity());
-        eventDate.setHint("Date");
-        layout.addView(eventDate);
+        final EditText eventD = new EditText(getActivity());
+        eventD.setHint("Date");
+        layout.addView(eventD);
         builder.setView(layout);
         builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String abc = eventName.getText().toString();
+                String eventName = String.valueOf(eventN.getText());
+                String eventDate = String.valueOf(eventD.getText());
+                Event event = new Event(eventName,eventDate,place);
+                User user = new User();
+                event.addUser(user);
+                events.add(event);
+
+                db.collection("events").document(eventName)
+                        .set(event)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                //Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                //Log.w(TAG, "Error writing document", e);
+                            }
+                        });
                 // Implement your logic here using the user input
                 dialog.dismiss();
             }
@@ -170,5 +220,8 @@ public class MapFragment extends Fragment {
         Dialog dialog = builder.create();
         dialog.show();
     }
+
+
 }
+
 

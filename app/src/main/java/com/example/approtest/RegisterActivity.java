@@ -131,6 +131,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     user.put("firstName", firstName);
                                     user.put("surname", surname);
                                     user.put("email", email);
+                                    user.put("Admin", false);
                                     System.out.println("User: " + user);
                                     documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override

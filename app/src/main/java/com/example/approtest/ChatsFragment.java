@@ -24,6 +24,12 @@ public class ChatsFragment extends Fragment {
 
     private FragmentChatsBinding binding;
 
+    ArrayList<Event> events;
+    public ChatsFragment(ArrayList<Event> events)
+    {
+        this.events = events;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

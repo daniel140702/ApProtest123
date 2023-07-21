@@ -13,7 +13,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -38,6 +37,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -52,7 +52,7 @@ FirebaseUser currentUser;
 FirebaseFirestore db;
 String currentUserFirstName;
 String currentUserSurname;
-List<Event> events;
+ArrayList<Event> events;
 
 
     @Override
@@ -74,8 +74,9 @@ List<Event> events;
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        this.events = new ArrayList<Event>();
         if(savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events)).commit();
             navigationView.setCheckedItem(R.id.nav_maps);
         }
 
@@ -86,8 +87,6 @@ List<Event> events;
         db = FirebaseFirestore.getInstance();
 
         DocumentReference userDoc = db.collection("users").document(currentUser.getUid());
-
-
 
 
         if (currentUser == null) {
@@ -109,11 +108,9 @@ List<Event> events;
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_maps) {
-            MapFragment mapFragment = new MapFragment();
-            mapFragment.setArguments("Events", events);
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events)).commit();
         } else if ( item.getItemId() == R.id.nav_chats){
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatsFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatsFragment(events)).commit();
         } else if (item.getItemId() == R.id.nav_logout) {
             mAuth.signOut();
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
