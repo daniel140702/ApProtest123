@@ -64,6 +64,8 @@ public class MapFragment extends Fragment {
     private boolean markerMoveEnabled = false;
     Boolean isAdmin;
 
+
+
     private ViewGroup layoutContainer; // Container for the layout to be displayed
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
@@ -76,9 +78,11 @@ public class MapFragment extends Fragment {
     User current;
 
     protected HashMap<String, Marker> markers;
-    public MapFragment(HashMap<String,Event> events)
+    public MapFragment(HashMap<String,Event> events, User current)
     {
         this.events = events;
+        this.current = current;
+        Log.d("onsucc", current.getFullName()+current.getEmail()+current.getToken());
         place = new LatLng(0,0);
     }
 
@@ -87,7 +91,7 @@ public class MapFragment extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
-            updateCurrent();
+            updateEvents();
             markers = new HashMap<String,Marker>();
             LatLng sydney = new LatLng(31, 35);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
@@ -141,32 +145,95 @@ public class MapFragment extends Fragment {
                 }
 
                 // Method to show a custom dialog with the marker title
-                private void showDialogWithMarkerTitle(String markerTitle) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(markerTitle);
-                    builder.setMessage(markerTitle);
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-
-                    builder.setNegativeButton("Unsubscribe From Event", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Delete event
-                            dialog.dismiss();
-                        }
-                    });
-
-                    // Create the AlertDialog instance and show it
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
             });
         }
     };
+
+
+//    private void buildDialog (String markerTitle) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//        builder.setTitle(markerTitle);
+//        builder.setMessage(markerTitle);
+//        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                dialog.dismiss();
+//            }
+//        });
+//        // build negativeButton
+//
+//        return;
+//    }
+
+    private boolean checkParticipatingFromDB(String eveName,User curr){
+        DocumentReference documentReference = db.collection("events").document(eveName);
+        final boolean flag[] = {false};
+        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Event tempEve = documentSnapshot.toObject(Event.class);
+                Log.d("onsucc", "succ");
+                flag[0] = tempEve.hasUser(current);
+            }
+        });
+        return flag[0];
+    }
+
+    private boolean checkParticipating(String eveName,User curr){
+        return events.get(eveName).hasUser(curr);
+    }
+
+    /*private void constructNegativeButton(boolean participating){
+        if (participating){
+            builder.setNegativeButton("Unsubscribe From Event", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // Delete event
+                    dialog.dismiss();
+                }
+            });
+        }
+    } */
+
+
+
+    private void showDialogWithMarkerTitle(String markerTitle) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(markerTitle);
+        builder.setMessage(markerTitle);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        Log.d("bool check", String.valueOf(checkParticipating(markerTitle,current))); // check
+        if (checkParticipating(markerTitle,current)) {
+            builder.setNegativeButton("Unsubscribe From Event", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    events.get(markerTitle).participants.remove(current.getToken());
+                    update(events.get(markerTitle));
+                    dialog.dismiss();
+                }
+            });
+        }
+        else{
+            builder.setNegativeButton("Subscribe To Event", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    events.get(markerTitle).addUser(current);
+                    update(events.get(markerTitle));
+                    dialog.dismiss();
+                }
+            });
+        }
+        // Create the AlertDialog instance and show it
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -244,7 +311,7 @@ public class MapFragment extends Fragment {
                         LatLng pos = new LatLng(event.getLatitude(), event.getLongitude());
                         String name = event.getEventName();
                         MarkerOptions markerOptions = new MarkerOptions().position(pos).title(name);
-                        if (event.isUser(current)){markerOptions
+                        if (event.hasUser(current)){markerOptions
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));}
                         Marker eventMarker = map.addMarker(markerOptions);
                         markers.put(event.getEventName(),eventMarker);
@@ -258,17 +325,7 @@ public class MapFragment extends Fragment {
 
 
 
-    private void updateCurrent()
-    {
-        DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                User user = documentSnapshot.toObject(User.class);
-                current = user;
-            }
-        });
-    }
+
 
     private void update(Event event)
     {

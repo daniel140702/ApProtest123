@@ -25,19 +25,19 @@ public class ChatsFragment extends Fragment {
 
     private FragmentChatsBinding binding;
 
-    HashMap<String,Event> events;
-    public ChatsFragment(HashMap<String,Event> events)
-    {
+    User current;
+    HashMap<String, Event> events;
+
+    public ChatsFragment(HashMap<String, Event> events, User current) {
         this.events = events;
+        this.current = current;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentChatsBinding.inflate(getLayoutInflater());
-
-
-
+        getCurrentEvents();
     }
 
     @Override
@@ -48,27 +48,26 @@ public class ChatsFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void getEvent(){
+    private void getCurrentEvents() {
         loading(true);
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        database.collection(Constants.KEY_COLLECTION_EVENTS)
-                .get()
-                .addOnCompleteListener(task -> {
-                    loading(false);
-//                    if(task.isSuccessful() && task.getResult() != null) {
-//                        List<Event> events  new ArrayList<>();
-//                        for(QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
-
-//                            ArrayList<User> participants = queryDocumentSnapshot.getData();
-
-
-
-//                        }
-//                    }
-                });
+        ArrayList<Event> currentEvents = new ArrayList<Event>();
+        for (Event event : events.values()) {
+            if (event.hasUser(current)) {
+                currentEvents.add(event);
+            }
+        }
+        loading(false);
+        if (currentEvents.size() > 0) {
+            EventsAdapter eventsAdapter = new EventsAdapter(currentEvents);
+            binding.eventsRecyclerView.setAdapter(eventsAdapter);
+            binding.eventsRecyclerView.setVisibility(View.VISIBLE);
+        } else {
+            showErrorMessage();
+        }
     }
 
-    private void loading(Boolean isLoading) {
+
+    private void loading(boolean isLoading) {
         if (isLoading){
             binding.chatsProgressBar.setVisibility(View.VISIBLE);
         } else {
@@ -76,8 +75,10 @@ public class ChatsFragment extends Fragment {
         }
     }
 
+
     private void showErrorMessage(){
         binding.textErrorMessage.setText(String.format("%s", "Events are unavailiable"));
         binding.textErrorMessage.setVisibility(View.VISIBLE);
+
     }
 }

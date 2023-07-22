@@ -27,6 +27,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
@@ -37,6 +38,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,11 +56,27 @@ FirebaseFirestore db;
 String currentUserFirstName;
 String currentUserSurname;
 HashMap<String,Event> events;
+User current;
 
+    private void updateCurrent()
+    {
+        Log.d("peeo", mAuth.getCurrentUser().getUid());
+        DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
+        Log.d("peeo", "here213");
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User user = documentSnapshot.toObject(User.class);
+                Log.d("peeo", "here");
+                current.setUser(user);
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        current = new User();
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -76,10 +94,7 @@ HashMap<String,Event> events;
         toggle.syncState();
 
         this.events = new HashMap<String,Event>();
-        if(savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events)).commit();
-            navigationView.setCheckedItem(R.id.nav_maps);
-        }
+
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
@@ -88,8 +103,7 @@ HashMap<String,Event> events;
         db = FirebaseFirestore.getInstance();
 
         DocumentReference userDoc = db.collection("users").document(currentUser.getUid());
-
-
+        updateCurrent();
         if (currentUser == null) {
             startActivities(new Intent[]{new Intent(getApplicationContext(), LoginActivity.class)});
             finish();
@@ -102,16 +116,27 @@ HashMap<String,Event> events;
                     greeting.setText("Hello " + currentUserFirstName + " " + currentUserSurname + ", find what protest suits you!");
                 }
             });
+
+        }
+        while(current.getToken() == null){}
+        Log.d("peepeepoopoo", current.getFullName()+current.getEmail()+current.getToken());
+        if(savedInstanceState == null){
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events,current)).commit();
+            navigationView.setCheckedItem(R.id.nav_maps);
         }
     }
 
 
+
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        while(current.getToken() == null){}
+        Log.d("peepeepoopoo", current.getFullName()+current.getEmail()+current.getToken());
         if (item.getItemId() == R.id.nav_maps) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events)).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events,current)).commit();
         } else if ( item.getItemId() == R.id.nav_chats){
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatsFragment(events)).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatsFragment(events,current)).commit();
         } else if (item.getItemId() == R.id.nav_logout) {
             mAuth.signOut();
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();

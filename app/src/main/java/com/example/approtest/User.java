@@ -20,10 +20,6 @@ public class User{
     public User(String fullName, String token,  String email) {
         this.fullName = fullName;
         this.token = token;
-        /*this.userEvents = new ArrayList<String>();
-        for (int i = 0;i < userEvents.size();i++) {
-            this.userEvents.add(String.valueOf(userEvents.get(i)));
-        }*/
         this.email=email;
         this.admin = false;
     }
@@ -61,6 +57,14 @@ public class User{
     {
         userEvents.add(String.valueOf(event.eventName));
     }*/
+
+    public void setUser(User user)
+    {
+        this.fullName = user.getFullName();
+        this.token = this.getToken();
+        this.email= this.getEmail();
+        this.admin = this.getAdmin();
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {
