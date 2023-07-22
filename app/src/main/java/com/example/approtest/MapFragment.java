@@ -4,10 +4,14 @@ import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.Button;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -143,7 +149,6 @@ public class MapFragment extends Fragment {
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Do something when the "OK" button is clicked (if needed)
                             dialog.dismiss();
                         }
                     });
@@ -207,6 +212,13 @@ public class MapFragment extends Fragment {
         return rootView;
     }
 
+    /*rivate BitmapDescriptor getCustomMarkerIcon(int color) {
+        Drawable background = ContextCompat.getDrawable(getContext(), R.drawable.ic_custom_marker);
+        background.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(((BitmapDrawable) background).getBitmap());
+        return bitmapDescriptor;
+    }*/
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -233,6 +245,8 @@ public class MapFragment extends Fragment {
                         LatLng pos = new LatLng(event.getLatitude(), event.getLongitude());
                         String name = event.getEventName();
                         MarkerOptions markerOptions = new MarkerOptions().position(pos).title(name);
+                        if (event.isUser(current)){markerOptions
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));}
                         Marker eventMarker = map.addMarker(markerOptions);
                         markers.put(event.getEventName(),eventMarker);
                     }
@@ -253,6 +267,17 @@ public class MapFragment extends Fragment {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User user = documentSnapshot.toObject(User.class);
                 current = user;
+            }
+        });
+    }
+
+    private void update(Event event)
+    {
+        DocumentReference documentReference = db.collection("events").document(event.eventName);
+        documentReference.set(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d("peepeepoopoo", "here2");
             }
         });
     }

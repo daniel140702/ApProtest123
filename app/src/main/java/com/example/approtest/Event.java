@@ -98,4 +98,9 @@ public class Event implements Serializable {
     }
 
     public void addUser(User user) {this.participants.put(user.getToken(),new User(user)); }
+
+    public boolean isUser(User user)
+    {
+        return participants.containsKey(user.getToken());
+    }
 }
