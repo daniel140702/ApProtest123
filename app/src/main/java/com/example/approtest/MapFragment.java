@@ -122,7 +122,6 @@ public class MapFragment extends Fragment {
                     if (rootView == null) {
                         return false;
                     }
-
                     // Create and show a Snackbar with the marker title
                     Snackbar snackbar = Snackbar.make(rootView, mName, Snackbar.LENGTH_SHORT);
 
