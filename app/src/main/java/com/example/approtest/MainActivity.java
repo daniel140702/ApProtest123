@@ -58,20 +58,20 @@ String currentUserSurname;
 HashMap<String,Event> events;
 User current;
 
-    /*private void updateCurrent()
+    private void updateCurrent()
     {
-        Log.d("peeo", mAuth.getCurrentUser().getUid());
-        DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
-        Log.d("peeo", "here213");
+        Log.d("amithabulbul", mAuth.getCurrentUser().getUid());
+        DocumentReference docRef = db.collection("users").document(currentUser.getUid());
+        Log.d("amithabulbul", docRef.toString());
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User user = documentSnapshot.toObject(User.class);
-                Log.d("peeo", "here");
+                Log.d("amithabulbul", "here");
                 current.setUser(user);
             }
         });
-    }*/
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,12 +98,10 @@ User current;
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-
-
         db = FirebaseFirestore.getInstance();
 
         DocumentReference userDoc = db.collection("users").document(currentUser.getUid());
-       // updateCurrent();
+       updateCurrent();
         if (currentUser == null) {
             startActivities(new Intent[]{new Intent(getApplicationContext(), LoginActivity.class)});
             finish();

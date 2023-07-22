@@ -106,7 +106,7 @@ public class MapFragment extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
-            updateCurrent();
+           // updateCurrent();
             updateEvents();
             markers = new HashMap<String,Marker>();
             LatLng sydney = new LatLng(31, 35);
