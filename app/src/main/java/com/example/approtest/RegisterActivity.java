@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -127,11 +128,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     Toast.makeText(RegisterActivity.this, "Account created successfully",
                                             Toast.LENGTH_SHORT).show();
                                     DocumentReference documentReference = db.collection("users").document(mAuth.getCurrentUser().getUid()); // TODO: throw exception if user is null
-                                    Map<String, Object> user = new HashMap<>();
-                                    user.put("firstName", firstName);
-                                    user.put("surname", surname);
-                                    user.put("email", email);
-                                    user.put("Admin", false);
+                                    User user = new User(firstName+" "+surname,mAuth.getCurrentUser().getUid(),email ,new HashMap<String, Event>() );
                                     System.out.println("User: " + user);
                                     documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override

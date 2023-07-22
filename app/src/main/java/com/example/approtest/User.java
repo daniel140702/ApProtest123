@@ -11,32 +11,53 @@ import java.util.Map;
 public class User{
     private String fullName;
     private String token;
-    private String image;
-    private HashMap<String, Event> participated_events;
+    private String email;
+    private HashMap<String, Event> userEvents;
 
-
-    public User(String fullName, String token, HashMap<String, Event> participated_events) {
+    private boolean admin;
+    public User(String fullName, String token,  String email , HashMap<String,Event> participated_events) {
         this.fullName = fullName;
         this.token = token;
-        this.participated_events = new HashMap<String, Event>();
+        this.userEvents = new HashMap<String, Event>();
         for (Map.Entry<String, Event> entry : participated_events.entrySet()) {
-            this.participated_events.put(entry.getKey(), entry.getValue());
+            this.userEvents.put(entry.getKey(), entry.getValue());
         }
+        this.email=email;
+        this.admin = false;
     }
 
-
     public User(User other){
-        this(other.fullName, other.token, other.participated_events);
+        this(other.getFullName(), other.getToken(), other.getEmail(), other.getUserEvents());
     }
 
     public User(){
         this.fullName = null;
         this.token = null;
-        this.participated_events = new HashMap<String, Event>();
+        this.userEvents = new HashMap<String, Event>();
+        this.email = null;
+        this.admin = false;
     }
 
     public String getToken(){
         return token;
+    }
+
+    public String getFullName() {return fullName;}
+
+    public HashMap<String, Event> getUserEvents() {
+        HashMap<String, Event> events = new HashMap<String, Event>();
+        for (Map.Entry<String, Event> entry : userEvents.entrySet()) {
+           events.put(entry.getKey(), entry.getValue());
+        }
+        return events;
+    }
+    public String getEmail(){return email;}
+
+    public boolean getAdmin(){return admin;}
+
+    public void addEvent(Event event)
+    {
+        userEvents.put(event.getEventName(),event);
     }
 
     @Override
@@ -47,5 +68,4 @@ public class User{
         }
         return false;
     }
-
 }

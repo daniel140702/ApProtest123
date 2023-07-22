@@ -10,6 +10,11 @@ public class Message {
         this.content = content;
     }
 
+    public Message()
+    {
+
+    }
+
     public Message (Message msg){
         this(msg.content, msg.user);
     }
@@ -23,7 +28,8 @@ public class Message {
     }
 
     public User getUser() {
-        return user;
+        return new User(user);
     }
+
 
 }

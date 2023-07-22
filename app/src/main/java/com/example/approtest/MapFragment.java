@@ -1,5 +1,7 @@
 package com.example.approtest;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
@@ -31,12 +33,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -59,6 +65,11 @@ public class MapFragment extends Fragment {
     FirebaseFirestore db;
     LatLng place;
 
+    GoogleMap map;
+
+    User current;
+
+    protected HashMap<String, Marker> markers;
     public MapFragment(ArrayList<Event> events)
     {
         this.events = events;
@@ -69,6 +80,8 @@ public class MapFragment extends Fragment {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
+            map = googleMap;
+            markers = new HashMap<String,Marker>();
             LatLng sydney = new LatLng(31, 35);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             MarkerOptions markerOptions = new MarkerOptions().position(sydney).title("current");
@@ -76,19 +89,14 @@ public class MapFragment extends Fragment {
             tempMarker.setVisible(false);
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
-                public void onMapClick(LatLng latLng) {
-                    for(int i =0;i < events.size();i++)
-                    {
-                        LatLng pos = events.get(i).getLatLang();
-                        String name = events.get(i).getEventName();
-                        MarkerOptions markerOptions = new MarkerOptions().position(pos).title(name);
-                        Marker eventMarker = googleMap.addMarker(markerOptions);
-                    }
+                public void onMapClick(LatLng latLng)
+                {
+                    updateEvents();
                     if (markerMoveEnabled) {
                         place =new LatLng(latLng.latitude,latLng.longitude);
                         tempMarker.setVisible(true);
                         tempMarker.setPosition(latLng);
-                        showDialog();
+                        showDialog(tempMarker);
                     }
                     else
                     {
@@ -98,11 +106,57 @@ public class MapFragment extends Fragment {
             });
             googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
-                public boolean onMarkerClick(Marker marker)
-                {
+                public boolean onMarkerClick(Marker marker) {
                     String mName = marker.getTitle();
-                    Toast.makeText(getActivity().getApplicationContext(),mName,Toast.LENGTH_SHORT).show();
-                    return false;
+                    View rootView = getView(); // Get the root view of your activity/fragment
+
+                    // Check if rootView is null before proceeding
+                    if (rootView == null) {
+                        return false;
+                    }
+
+                    // Create and show a Snackbar with the marker title
+                    Snackbar snackbar = Snackbar.make(rootView, mName, Snackbar.LENGTH_SHORT);
+
+                    // Add an action to the Snackbar for the click event
+                    snackbar.setAction("Show Details", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // Create and show a custom dialog here
+                            showDialogWithMarkerTitle(mName);
+                        }
+                    });
+
+                    snackbar.show();
+
+                    // Return true to indicate the event has been consumed
+                    return true;
+                }
+
+                // Method to show a custom dialog with the marker title
+                private void showDialogWithMarkerTitle(String markerTitle) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(markerTitle);
+                    builder.setMessage(markerTitle);
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do something when the "OK" button is clicked (if needed)
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.setNegativeButton("Unsubscribe From Event", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Delete event
+                            dialog.dismiss();
+                        }
+                    });
+
+                    // Create the AlertDialog instance and show it
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
             });
         }
@@ -126,7 +180,7 @@ public class MapFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (document != null && document.exists()) {
 
-                        isAdmin = document.getBoolean("Admin");
+                        isAdmin = document.getBoolean("admin");
 
                         if (isAdmin)
                             add_button_floating.setVisibility(View.VISIBLE);
@@ -164,9 +218,56 @@ public class MapFragment extends Fragment {
         }
     }
 
+    public void updateEvents()
+    {
+        events = new ArrayList<Event>();
+        CollectionReference colRef = db.collection("events");
+        colRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Event event = new Event(document.toObject(Event.class));
+                        Log.d("peepeepoopoo", String.valueOf(event.getLatitude()));
+                        events.add(event);
+                        LatLng pos = new LatLng(event.getLatitude(), event.getLongitude());
+                        String name = event.getEventName();
+                        MarkerOptions markerOptions = new MarkerOptions().position(pos).title(name);
+                        Marker eventMarker = map.addMarker(markerOptions);
+                        markers.put(event.getEventName(),eventMarker);
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
+    private void saveEvent(String name, String date, LatLng place)
+    {
+        double latitude = place.latitude;;
+        double longitude = place.longitude;
+        Event event = new Event(name,date,latitude,longitude);
+        DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Log.d("peepeepoopoo", documentSnapshot.toObject(User.class).getFullName());
+                event.addUser(documentSnapshot.toObject(User.class));
+                DocumentReference documentReference = db.collection("events").document(name);
+                documentReference.set(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d(TAG, "onSuccess: user profile is created for ");
+                    }
+                });
+
+            }
+        });
+    }
 
 
-    private void showDialog() {
+    private void showDialog(Marker tempMarker) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Add Event");
 
@@ -184,28 +285,10 @@ public class MapFragment extends Fragment {
         builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String eventName = String.valueOf(eventN.getText());
-                String eventDate = String.valueOf(eventD.getText());
-                Event event = new Event(eventName,eventDate,place);
-                User user = new User();
-                event.addUser(user);
-                events.add(event);
-
-                db.collection("events").document(eventName)
-                        .set(event)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                //Log.d(TAG, "DocumentSnapshot successfully written!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                //Log.w(TAG, "Error writing document", e);
-                            }
-                        });
-                // Implement your logic here using the user input
+                String name = String.valueOf(eventN.getText());
+                String date = String.valueOf(eventD.getText());
+                saveEvent(name, date, place);
+                tempMarker.setVisible(false);
                 dialog.dismiss();
             }
         });
@@ -214,6 +297,7 @@ public class MapFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Do nothing or perform any required action
+                tempMarker.setVisible(false);
                 dialog.dismiss();
             }
         });
