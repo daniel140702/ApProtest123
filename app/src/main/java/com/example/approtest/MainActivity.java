@@ -58,7 +58,7 @@ String currentUserSurname;
 HashMap<String,Event> events;
 User current;
 
-    private void updateCurrent()
+    /*private void updateCurrent()
     {
         Log.d("peeo", mAuth.getCurrentUser().getUid());
         DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
@@ -71,7 +71,7 @@ User current;
                 current.setUser(user);
             }
         });
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +103,7 @@ User current;
         db = FirebaseFirestore.getInstance();
 
         DocumentReference userDoc = db.collection("users").document(currentUser.getUid());
-        updateCurrent();
+       // updateCurrent();
         if (currentUser == null) {
             startActivities(new Intent[]{new Intent(getApplicationContext(), LoginActivity.class)});
             finish();
@@ -118,8 +118,6 @@ User current;
             });
 
         }
-        while(current.getToken() == null){}
-        Log.d("peepeepoopoo", current.getFullName()+current.getEmail()+current.getToken());
         if(savedInstanceState == null){
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events,current)).commit();
             navigationView.setCheckedItem(R.id.nav_maps);
@@ -131,8 +129,6 @@ User current;
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        while(current.getToken() == null){}
-        Log.d("peepeepoopoo", current.getFullName()+current.getEmail()+current.getToken());
         if (item.getItemId() == R.id.nav_maps) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events,current)).commit();
         } else if ( item.getItemId() == R.id.nav_chats){

@@ -18,9 +18,9 @@ public class User{
 
     private boolean admin;
     public User(String fullName, String token,  String email) {
-        this.fullName = fullName;
-        this.token = token;
-        this.email=email;
+        this.fullName = String.valueOf(fullName);
+        this.token = String.valueOf(token);
+        this.email=String.valueOf(email);
         this.admin = false;
     }
 
@@ -60,10 +60,10 @@ public class User{
 
     public void setUser(User user)
     {
-        this.fullName = user.getFullName();
-        this.token = this.getToken();
-        this.email= this.getEmail();
-        this.admin = this.getAdmin();
+        this.fullName = String.valueOf(user.getFullName());
+        this.token = String.valueOf(user.getToken());
+        this.email=  String.valueOf(user.getEmail());
+        this.admin =  user.getAdmin();
     }
 
     @Override

@@ -86,11 +86,27 @@ public class MapFragment extends Fragment {
         place = new LatLng(0,0);
     }
 
+    private void updateCurrent()
+    {
+        Log.d("peeo", mAuth.getCurrentUser().getUid());
+        DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
+        Log.d("peeo", "here213");
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User user = documentSnapshot.toObject(User.class);
+                Log.d("peeo", user.getFullName());
+                current.setUser(user);
+            }
+        });
+    }
+
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
+            updateCurrent();
             updateEvents();
             markers = new HashMap<String,Marker>();
             LatLng sydney = new LatLng(31, 35);
@@ -341,12 +357,12 @@ public class MapFragment extends Fragment {
 
     private void saveEvent(String name, String date, LatLng place)
     {
-        Log.d("peepeepoopoo", "here1");
+        Log.d("shitpit", current.getToken());
         double latitude = place.latitude;
         double longitude = place.longitude;
         Event event = new Event(name,date,latitude,longitude);
         event.addUser(current);
-        Log.d("peepeepoopoo", "here2");
+        Log.d("shitpit", event.getParticipants().get(current.getToken()).getToken());
         DocumentReference documentReference = db.collection("events").document(name);
         documentReference.set(event).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
