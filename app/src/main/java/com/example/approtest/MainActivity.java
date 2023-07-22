@@ -38,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -52,7 +53,7 @@ FirebaseUser currentUser;
 FirebaseFirestore db;
 String currentUserFirstName;
 String currentUserSurname;
-ArrayList<Event> events;
+HashMap<String,Event> events;
 
 
     @Override
@@ -74,7 +75,7 @@ ArrayList<Event> events;
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        this.events = new ArrayList<Event>();
+        this.events = new HashMap<String,Event>();
         if(savedInstanceState == null){
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment(events)).commit();
             navigationView.setCheckedItem(R.id.nav_maps);

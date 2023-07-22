@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -128,7 +129,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     Toast.makeText(RegisterActivity.this, "Account created successfully",
                                             Toast.LENGTH_SHORT).show();
                                     DocumentReference documentReference = db.collection("users").document(mAuth.getCurrentUser().getUid()); // TODO: throw exception if user is null
-                                    User user = new User(firstName+" "+surname,mAuth.getCurrentUser().getUid(),email ,new HashMap<String, Event>() );
+                                    User user = new User(firstName+" "+surname,mAuth.getCurrentUser().getUid(),email ,new ArrayList<>() );
                                     System.out.println("User: " + user);
                                     documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override

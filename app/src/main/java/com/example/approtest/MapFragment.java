@@ -61,7 +61,7 @@ public class MapFragment extends Fragment {
     private ViewGroup layoutContainer; // Container for the layout to be displayed
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
-    ArrayList<Event> events;
+    HashMap<String,Event> events;
     FirebaseFirestore db;
     LatLng place;
 
@@ -70,7 +70,7 @@ public class MapFragment extends Fragment {
     User current;
 
     protected HashMap<String, Marker> markers;
-    public MapFragment(ArrayList<Event> events)
+    public MapFragment(HashMap<String,Event> events)
     {
         this.events = events;
         place = new LatLng(0,0);
@@ -81,12 +81,14 @@ public class MapFragment extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
+            updateCurrent();
             markers = new HashMap<String,Marker>();
             LatLng sydney = new LatLng(31, 35);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             MarkerOptions markerOptions = new MarkerOptions().position(sydney).title("current");
             Marker tempMarker = googleMap.addMarker(markerOptions);
             tempMarker.setVisible(false);
+
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng)
@@ -194,9 +196,6 @@ public class MapFragment extends Fragment {
         });
 
 
-
-
-
         add_button_floating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -220,7 +219,8 @@ public class MapFragment extends Fragment {
 
     public void updateEvents()
     {
-        events = new ArrayList<Event>();
+        events.clear();
+        map.clear();
         CollectionReference colRef = db.collection("events");
         colRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -229,7 +229,7 @@ public class MapFragment extends Fragment {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Event event = new Event(document.toObject(Event.class));
                         Log.d("peepeepoopoo", String.valueOf(event.getLatitude()));
-                        events.add(event);
+                        events.put(event.getEventName(),event);
                         LatLng pos = new LatLng(event.getLatitude(), event.getLongitude());
                         String name = event.getEventName();
                         MarkerOptions markerOptions = new MarkerOptions().position(pos).title(name);
@@ -243,25 +243,42 @@ public class MapFragment extends Fragment {
         });
     }
 
-    private void saveEvent(String name, String date, LatLng place)
+
+
+    private void updateCurrent()
     {
-        double latitude = place.latitude;;
-        double longitude = place.longitude;
-        Event event = new Event(name,date,latitude,longitude);
         DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Log.d("peepeepoopoo", documentSnapshot.toObject(User.class).getFullName());
-                event.addUser(documentSnapshot.toObject(User.class));
-                DocumentReference documentReference = db.collection("events").document(name);
-                documentReference.set(event).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d(TAG, "onSuccess: user profile is created for ");
-                    }
-                });
+                User user = documentSnapshot.toObject(User.class);
+                current = user;
+            }
+        });
+    }
 
+
+    private void saveEvent(String name, String date, LatLng place)
+    {
+        Log.d("peepeepoopoo", "here1");
+        double latitude = place.latitude;;
+        double longitude = place.longitude;
+        Event event = new Event(name,date,latitude,longitude);
+        event.addUser(current);
+        Log.d("peepeepoopoo", "here2");
+        current.addEvent(event);
+        DocumentReference documentReference = db.collection("events").document(name);
+        documentReference.set(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: user profile is created for ");
+            }
+        });
+        documentReference = db.collection("users").document(current.getToken());
+        documentReference.set(current).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: user profile is created for ");
             }
         });
     }

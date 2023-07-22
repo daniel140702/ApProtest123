@@ -17,6 +17,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -24,8 +25,8 @@ public class ChatsFragment extends Fragment {
 
     private FragmentChatsBinding binding;
 
-    ArrayList<Event> events;
-    public ChatsFragment(ArrayList<Event> events)
+    HashMap<String,Event> events;
+    public ChatsFragment(HashMap<String,Event> events)
     {
         this.events = events;
     }
