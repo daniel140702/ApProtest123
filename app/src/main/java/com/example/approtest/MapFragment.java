@@ -119,7 +119,6 @@ public class MapFragment extends Fragment {
                 @Override
                 public void onMapClick(LatLng latLng)
                 {
-                    updateEvents();
                     if (markerMoveEnabled) {
                         place =new LatLng(latLng.latitude,latLng.longitude);
                         tempMarker.setVisible(true);
@@ -257,6 +256,7 @@ public class MapFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
         FloatingActionButton add_button_floating=rootView.findViewById(R.id.add_button_floating);
+        FloatingActionButton update_button_floating=rootView.findViewById(R.id.add_restart_button);
         add_button_floating.setVisibility(View.GONE);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
@@ -279,6 +279,15 @@ public class MapFragment extends Fragment {
                     }
                 } else {
                 }
+            }
+        });
+
+        update_button_floating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateEvents();
+                //Intent intent = new Intent(getActivity(), NewEventActivity.class);
+                //startActivity(intent);
             }
         });
 
