@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class Event implements Serializable {
     protected String eventName;
-    protected ArrayList<User> participants;
+    protected HashMap<String,User> participants;
     protected String date;
     protected ArrayList<Message> chat;
 
@@ -26,11 +26,11 @@ public class Event implements Serializable {
 
 
 
-    public Event (String eventName, String date, double latitude, double longitude, ArrayList<User> participants, ArrayList<Message> messages){
+    public Event (String eventName, String date, double latitude, double longitude, HashMap<String,User> participants, ArrayList<Message> messages){
         this(eventName,date, latitude, longitude);
-        for(int i=0 ;i  < participants.size();i++)
+        for(Map.Entry<String,User> entry : participants.entrySet())
         {
-           this.participants.add(participants.get(i)) ;
+           this.participants.put(entry.getKey(),entry.getValue()) ;
         }
         for(int i=0 ;i  < chat.size();i++)
         {
@@ -44,7 +44,7 @@ public class Event implements Serializable {
         this.date = String.valueOf(date);
         this.latitude = latitude;
         this.longitude = longitude;
-        this.participants = new ArrayList<User>();
+        this.participants = new HashMap<String,User>();
         this.chat = new ArrayList<Message>();
     }
 
@@ -60,7 +60,7 @@ public class Event implements Serializable {
     }
     public Event()
     {
-        this.participants = new ArrayList<User>();
+        this.participants = new HashMap<String,User>();
         this.chat = new ArrayList<Message>();
     }
 
@@ -76,11 +76,14 @@ public class Event implements Serializable {
         return date;
     }
 
-    public ArrayList<User> getParticipants() {
-        ArrayList<User> users = new ArrayList<User>();
+    public HashMap<String, User> getParticipants() {
+        HashMap<String,User> users = new HashMap<String,User>();
         for(int i = 0; i < participants.size();i++)
         {
-            users.add(new User(participants.get(i)));
+            for(Map.Entry<String,User> entry : participants.entrySet())
+            {
+                users.put(entry.getKey(),entry.getValue()) ;
+            }
         }
         return users;
     }
@@ -94,5 +97,5 @@ public class Event implements Serializable {
         return chat;
     }
 
-    public void addUser(User user) {this.participants.add(new User(user)); }
+    public void addUser(User user) {this.participants.put(user.getToken(),new User(user)); }
 }

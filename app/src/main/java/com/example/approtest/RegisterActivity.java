@@ -129,7 +129,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     Toast.makeText(RegisterActivity.this, "Account created successfully",
                                             Toast.LENGTH_SHORT).show();
                                     DocumentReference documentReference = db.collection("users").document(mAuth.getCurrentUser().getUid()); // TODO: throw exception if user is null
-                                    User user = new User(firstName+" "+surname,mAuth.getCurrentUser().getUid(),email ,new ArrayList<>() );
+                                    User user = new User(firstName+" "+surname,mAuth.getCurrentUser().getUid(),email);
                                     System.out.println("User: " + user);
                                     documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override

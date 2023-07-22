@@ -261,24 +261,16 @@ public class MapFragment extends Fragment {
     private void saveEvent(String name, String date, LatLng place)
     {
         Log.d("peepeepoopoo", "here1");
-        double latitude = place.latitude;;
+        double latitude = place.latitude;
         double longitude = place.longitude;
         Event event = new Event(name,date,latitude,longitude);
         event.addUser(current);
         Log.d("peepeepoopoo", "here2");
-        current.addEvent(event);
         DocumentReference documentReference = db.collection("events").document(name);
         documentReference.set(event).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                Log.d(TAG, "onSuccess: user profile is created for ");
-            }
-        });
-        documentReference = db.collection("users").document(current.getToken());
-        documentReference.set(current).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                Log.d(TAG, "onSuccess: user profile is created for ");
+                Log.d("peepeepoopoo", "here2");
             }
         });
     }
