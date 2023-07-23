@@ -87,6 +87,7 @@ public class ChatsFragment extends Fragment implements ChatEventListener {
     public void onChatEventClicked(Event event) {
         Intent intent = new Intent(getActivity().getApplicationContext(), ChatActivity.class);
         intent.putExtra(Constants.KEY_EVENT, event);
+        intent.putExtra(Constants.KEY_CURRENT_USER, current);
         startActivity(intent);
 //        getActivity().finish();
     }

@@ -58,7 +58,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
 
         void setEventData(Event event){
             binding.eventNameText.setText(event.eventName);
-           // binding.chatImage.setImageBitmap(getEventImage(event.encodedImage));
+           // binding.chatImage.setImageBitmap(getEventImage(event.encodedImage)); /**************************** EYAL **************************************/
             binding.getRoot().setOnClickListener(v -> chatEventListener.onChatEventClicked(event));
         }
 

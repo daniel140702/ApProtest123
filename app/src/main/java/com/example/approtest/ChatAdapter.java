@@ -17,15 +17,13 @@ import java.util.List;
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private final List<ChatMessage> chatMessages;
-    private final String otherGroupMemberName;
-    private final String senderId;
+    private final User sender;
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
 
-    public ChatAdapter(List<ChatMessage> chatMessages, String otherGroupMemberName, String senderId) {
+    public ChatAdapter(List<ChatMessage> chatMessages, User sender) {
         this.chatMessages = chatMessages;
-        this.otherGroupMemberName = otherGroupMemberName;
-        this.senderId = senderId;
+        this.sender = sender;
     }
 
     @NonNull
@@ -50,6 +48,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 );
             default:
                 Log.d("Error: ", "wrong view type");
+                break;
         }
         return null;
     }
@@ -59,10 +58,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         switch (getItemViewType(position)) {
             case VIEW_TYPE_SENT:
                 ((SentMessageViewHolder) holder).setData(chatMessages.get(position));
+                break;
             case VIEW_TYPE_RECEIVED:
-                ((ReceivedMessageViewHolder) holder).setData(chatMessages.get(position), this.otherGroupMemberName);
+                ((ReceivedMessageViewHolder) holder).setData(chatMessages.get(position));
+                break;
             default:
                 Log.d("Error: ", "wrong view type");
+                break;
         }
 
     }
@@ -73,7 +75,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     public int getItemViewType(int position) {
-        if(chatMessages.get(position).senderId.equals(senderId)){
+        if(chatMessages.get(position).sender.getToken().equals(sender.getToken())){
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;
@@ -103,10 +105,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding = itemContainerReceivedMessageBinding;
         }
 
-        void setData(ChatMessage chatMessage, String otherGroupMemberName){
+        void setData(ChatMessage chatMessage){
             binding.receivedMessageText.setText(chatMessage.message);
             binding.receivedMessageDate.setText(chatMessage.dateTime);
-            binding.receivedMessageUser.setText(otherGroupMemberName);
+            binding.receivedMessageUser.setText(chatMessage.sender.getFullName());
         }
     }
 

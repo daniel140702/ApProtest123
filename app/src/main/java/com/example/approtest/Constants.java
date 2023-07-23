@@ -11,4 +11,11 @@ public class Constants {
     public static final String KEY_IMAGE = "image";
     public static final String KEY_COLLECTION_EVENTS = "events";
     public static final String KEY_EVENT = "event";
+    public static final String KEY_CURRENT_USER = "currentUser";
+    public static final String KEY_COLLECTION_CHAT = "chat";
+    public static final String KEY_MESSAGE = "message";
+    public static final String KEY_TIMESTAMP = "timeStamp";
+    public static final String KEY_SENDER = "sender";
+    public static final String KEY_PARTICIPANTS = "participants";
+    public static final String KEY_DATE_OBJECT = "dateObject";
 }

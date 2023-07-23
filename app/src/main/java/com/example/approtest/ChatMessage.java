@@ -1,10 +1,13 @@
 package com.example.approtest;
 
+import java.util.Date;
+
 public class ChatMessage {
 
-    public String senderId, message, dateTime;
-
-    public Event receivedEvent;
+    public String message, dateTime;
+    public Date dateObject;
+    public User sender;
+    public Event event;
 
 //    public ChatMessage(String content, User user){
 //        this.user = user;
