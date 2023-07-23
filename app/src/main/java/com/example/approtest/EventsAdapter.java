@@ -17,9 +17,11 @@ import java.util.List;
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewHolder>{
 
     private final List<Event> events;
+    private final ChatEventListener chatEventListener;
 
-    public EventsAdapter(List<Event> events) {
+    public EventsAdapter(List<Event> events, ChatEventListener chatEventListener) {
         this.events = events;
+        this.chatEventListener = chatEventListener;
     }
 
 
@@ -57,6 +59,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventViewH
         void setEventData(Event event){
             binding.eventNameText.setText(event.eventName);
            // binding.chatImage.setImageBitmap(getEventImage(event.encodedImage));
+            binding.getRoot().setOnClickListener(v -> chatEventListener.onChatEventClicked(event));
         }
 
     }

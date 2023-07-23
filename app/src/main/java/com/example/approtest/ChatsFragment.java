@@ -1,5 +1,6 @@
 package com.example.approtest;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class ChatsFragment extends Fragment {
+public class ChatsFragment extends Fragment implements ChatEventListener {
 
     private FragmentChatsBinding binding;
 
@@ -58,7 +59,7 @@ public class ChatsFragment extends Fragment {
         }
         loading(false);
         if (currentEvents.size() > 0) {
-            EventsAdapter eventsAdapter = new EventsAdapter(currentEvents);
+            EventsAdapter eventsAdapter = new EventsAdapter(currentEvents, this);
             binding.eventsRecyclerView.setAdapter(eventsAdapter);
             binding.eventsRecyclerView.setVisibility(View.VISIBLE);
         } else {
@@ -80,5 +81,13 @@ public class ChatsFragment extends Fragment {
         binding.textErrorMessage.setText(String.format("%s", "Events are unavailiable"));
         binding.textErrorMessage.setVisibility(View.VISIBLE);
 
+    }
+
+    @Override
+    public void onChatEventClicked(Event event) {
+        Intent intent = new Intent(getActivity().getApplicationContext(), ChatActivity.class);
+        intent.putExtra(Constants.KEY_EVENT, event);
+        startActivity(intent);
+//        getActivity().finish();
     }
 }

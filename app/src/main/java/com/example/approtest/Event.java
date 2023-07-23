@@ -1,12 +1,7 @@
 package com.example.approtest;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 //import com.google.
@@ -16,7 +11,7 @@ public class Event implements Serializable {
     protected String eventName;
     protected HashMap<String,User> participants;
     protected String date;
-    protected ArrayList<Message> chat;
+//    protected ArrayList<Message> chat;
 
     protected double latitude;
 
@@ -26,16 +21,16 @@ public class Event implements Serializable {
 
 
 
-    public Event (String eventName, String date, double latitude, double longitude, HashMap<String,User> participants, ArrayList<Message> messages){
+    public Event (String eventName, String date, double latitude, double longitude, HashMap<String,User> participants, ArrayList<ChatMessage> chatMessages){
         this(eventName,date, latitude, longitude);
         for(Map.Entry<String,User> entry : participants.entrySet())
         {
            this.participants.put(entry.getKey(),entry.getValue()) ;
         }
-        for(int i=0 ;i  < chat.size();i++)
-        {
-            this.chat.add(chat.get(i));
-        }
+//        for(int i=0 ;i  < chat.size();i++)
+//        {
+//            this.chat.add(chat.get(i));
+//        }
 
     }
 
@@ -45,7 +40,7 @@ public class Event implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.participants = new HashMap<String,User>();
-        this.chat = new ArrayList<Message>();
+//        this.chat = new ArrayList<ChatMessage>();
     }
 
 
@@ -56,12 +51,12 @@ public class Event implements Serializable {
         this.latitude = event.getLatitude();;
         this.longitude = event.getLongitude();
         this.participants = event.getParticipants();
-        this.chat = event.getChat();
+//        this.chat = event.getChat();
     }
     public Event()
     {
         this.participants = new HashMap<String,User>();
-        this.chat = new ArrayList<Message>();
+//        this.chat = new ArrayList<ChatMessage>();
     }
 
     public String getEventName(){
@@ -88,14 +83,14 @@ public class Event implements Serializable {
         return users;
     }
 
-    public ArrayList<Message> getChat() {
-        ArrayList<Message> chat = new ArrayList<Message>();
-        for(int i = 0; i < this.chat.size();i++)
-        {
-            chat.add(new Message(this.chat.get(i)));
-        }
-        return chat;
-    }
+//    public ArrayList<ChatMessage> getChat() {
+//        ArrayList<ChatMessage> chat = new ArrayList<ChatMessage>();
+//        for(int i = 0; i < this.chat.size();i++)
+//        {
+//            chat.add(new ChatMessage(this.chat.get(i)));
+//        }
+//        return chat;
+//    }
 
     public void addUser(User user) {this.participants.put(user.getToken(),new User(user)); }
 
