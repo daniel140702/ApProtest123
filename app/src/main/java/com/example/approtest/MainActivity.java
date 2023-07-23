@@ -58,6 +58,8 @@ String currentUserSurname;
 HashMap<String,Event> events;
 User current;
 
+
+
     private void updateCurrent()
     {
         Log.d("amithabulbul", mAuth.getCurrentUser().getUid());
@@ -72,6 +74,8 @@ User current;
             }
         });
     }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
