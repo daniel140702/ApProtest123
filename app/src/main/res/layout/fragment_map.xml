@@ -51,4 +51,33 @@
         app:srcCompat="@drawable/baseline_autorenew_24"
         app:tint="@color/primary_dark"/>
 
+
+    <LinearLayout
+        android:visibility="invisible"
+        android:id="@+id/markerLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="7dp"
+        app:layout_constraintBaseline_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="parent"
+        tools:layout_editor_absoluteY="16dp">
+
+        <TextView
+            android:id="@+id/markerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="New marker"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/markerImage"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/def_group_img" />
+    </LinearLayout>
 </RelativeLayout>

@@ -9,6 +9,9 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -20,6 +23,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.Button;
@@ -320,8 +325,10 @@ public class MapFragment extends Fragment {
         }
     }
 
+
     public void updateEvents()
     {
+        int i = 1;
         events.clear();
         map.clear();
         CollectionReference colRef = db.collection("events");
@@ -329,6 +336,7 @@ public class MapFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    int i = 1;
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Event event = new Event(document.toObject(Event.class));
                         Log.d("peepeepoopoo", String.valueOf(event.getLatitude()));
@@ -336,10 +344,12 @@ public class MapFragment extends Fragment {
                         LatLng pos = new LatLng(event.getLatitude(), event.getLongitude());
                         String name = event.getEventName();
                         MarkerOptions markerOptions = new MarkerOptions().position(pos).title(name);
-                        if (event.hasUser(current)){markerOptions
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));}
+                       // if (event.hasUser(current)){markerOptions
+                                //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));}
+                        markerOptions.icon(createDescriptor(i));
                         Marker eventMarker = map.addMarker(markerOptions);
                         markers.put(event.getEventName(),eventMarker);
+                        i++;
                     }
                 } else {
                     Log.d(TAG, "Error getting documents: ", task.getException());
@@ -349,7 +359,21 @@ public class MapFragment extends Fragment {
     }
 
 
+public BitmapDescriptor createDescriptor(int i)
+{
+    ImageView view = (ImageView)getView().findViewById(R.id.markerImage);
+    if (i == 1){
+        view.setImageResource(R.drawable.blueskys);}
+    else
+    {
+        view.setImageResource(R.drawable.def_group_img);
+    }
+    Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap);
+    view.draw(canvas);
 
+    return BitmapDescriptorFactory.fromBitmap(bitmap);
+}
 
 
     private void update(Event event)
